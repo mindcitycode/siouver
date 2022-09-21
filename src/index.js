@@ -1,8 +1,14 @@
 // Require the framework and instantiate it
 const fastify = require('fastify')({ logger: true })
+const path = require('path')
+
+fastify.register(require('@fastify/static'), {
+    root: path.join(__dirname, 'public'),
+    //prefix: '/public', 
+})
 
 // Declare a route
-fastify.get('/', async (request, reply) => {
+fastify.get('/api', async (request, reply) => {
     return { hello: 'world', and: 'all' }
 })
 
