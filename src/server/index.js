@@ -1,9 +1,11 @@
 // Require the framework and instantiate it
 const fastify = require('fastify')({ logger: true })
 const path = require('path')
+const appDir = path.resolve(path.join(__dirname, '../../'))
 
+console.log(appDir)
 fastify.register(require('@fastify/static'), {
-    root: path.join(__dirname, 'public'),
+    root: path.join(appDir, "dist/")
     //prefix: '/public', 
 })
 
