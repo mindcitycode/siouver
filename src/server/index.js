@@ -14,12 +14,12 @@ fastify.register(require('@fastify/static'), {
 fastify.get('/api', async (request, reply) => {
     return { hello: 'world', and: 'all' }
 })
-const blocs = new Array(10).fill(0).map((_, id) => {
-    const x = Math.random() * 800
-    const y = Math.random() * 800
-    const msg = `ah${Math.random()}`
-    return [id, x, y, msg]
-})
+const blocs = [
+    [0,40,40,'place your'],
+    [0,60,60,'own'],
+    [0,80,80,'message'],
+    [0,100,100,'click "add"']
+]
 console.log(blocs)
 fastify.get('/blocs', async (request, reply) => {
     return blocs
