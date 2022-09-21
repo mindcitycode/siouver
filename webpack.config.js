@@ -40,7 +40,7 @@ module.exports = (env, args) => {
     if (args.mode === 'development') {
         delete config.optimization
     } else if (args.mode === 'production') {
-        delete config.devtool
+   //     delete config.devtool
     }
     return config
 }
