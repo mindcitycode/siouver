@@ -3,8 +3,8 @@ const $style = create('style')
 document.head.append($style)
 $style.textContent = `
 body {
-    width : 10000vw;
-    height : 10000vh;
+    width : 1000000px;
+    height : 1000000px;
 }
 div {  position : fixed }
 button.validate { visibility: hidden;}
@@ -18,7 +18,10 @@ body.what div button.add { visibility: hidden; }
 body.what div input {  visibility: visible ; autofocus : true }
 body.what div button.validate {  visibility: visible }
 body.what div button.cancel {  visibility: visible }
-
+span.location {
+    position : fixed;
+    right : 1em;
+}
 p.box { position:absolute;}
 /**/
 body {
@@ -79,26 +82,30 @@ const Fse = () => {
     const tell = msg => {
         if (state === undefined) {
             if (msg === 'add') {
-                state = 'where?'
+                state = 'where'
                 document.body.classList.add('where')
             }
-        } else if (state === 'where?') {
+        } else if (state === 'where') {
             const $input = document.getElementById("content")
+            const $div = document.getElementsByTagName("div")[0]
             if (msg === 'there') {
                 state = 'what'
-                $input.focus()
                 document.body.classList.remove('where')
                 document.body.classList.add('what')
                 x = pointerPosition.x
                 y = pointerPosition.y
-
+                $input.focus()
+                $input.click()
             }
         } else if (state === 'what') {
             const $input = document.getElementById("content")
+            const $div = document.getElementsByTagName("div")[0]
+            const $addButton = document.getElementsByClassName("add")[0]
             if (msg == 'cancel') {
                 state = undefined
                 document.body.classList.remove('what')
                 $input.value = ''
+                $addButton.focus()
             } else if (msg === 'validate') {
                 state = undefined
                 document.body.classList.remove('what')
@@ -107,6 +114,7 @@ const Fse = () => {
                 send(x, y, content).then(([id, x, y, z]) => {
                     addBox(id, x, y, z)
                 })
+                $addButton.focus()
             }
         }
     }
@@ -153,5 +161,40 @@ const fse = Fse()
         $buttonValidate.classList.add('cancel')
         bar.append($buttonValidate)
     }
+    {
+        const $location = create('span')
+        $location.classList = 'location'
+        //$location.onclick = fse.message('validate')
+        $location.textContent = '22'
+        bar.append($location)
+    }
 }
+
+var cumulativeOffset = function (element) {
+    var top = 0, left = 0;
+    do {
+        top += element.offsetTop || 0;
+        left += element.offsetLeft || 0;
+        element = element.offsetParent;
+    } while (element);
+
+    return {
+        top: top,
+        left: left
+    };
+};
+
+setInterval(() => {
+    let url = new URL(document.location)
+    let params = new URLSearchParams()//url.search);
+
+    params.set('x', pointerPosition.x);
+    params.set('y', pointerPosition.y);
+    history.replaceState("no","no","?"+params.toString())
+
+    const $location = document.getElementsByClassName('location')[0]
+    $location.textContent = `${pointerPosition.x} ${pointerPosition.y}`
+
+}, 100)
+
 update()
