@@ -18,7 +18,7 @@ const blocs = [
     [0,40,40,'place your'],
     [0,60,60,'own'],
     [0,80,80,'message'],
-    [0,100,100,'click "add"']
+    [0,100,100,'click "add" !']
 ]
 console.log(blocs)
 fastify.get('/blocs', async (request, reply) => {
