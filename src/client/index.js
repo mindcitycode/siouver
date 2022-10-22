@@ -25,10 +25,11 @@ const addBox = (box = {}) => {
     const check = (isNaN(parseFloat(box.x)) === false) && (isNaN(parseFloat(box.y)) === false) && (box.msg?.length > 0)
     if (check) {
         const { x, y, msg } = box
-        const $p = createElement('p', 'box', msg, {
-            style: `left: ${x}px; top: ${y}px`
-        })
-        document.body.append($p)
+        document.body.append(
+            createElement('p', 'box', msg, {
+                style: `left: ${x}px; top: ${y}px`
+            })
+        )
     }
 }
 const Fse = () => {
@@ -90,16 +91,14 @@ import { createElement } from './dom.js'
         $buttonAdd.onclick = fse.message('add')
         bar.append($buttonAdd)
     }
-
     document.body.onclick = fse.message('there')
     {
         const $textInput = createElement('input', undefined, undefined, {
-            placeholder: 'type your text'
+            placeholder: 'type your text',
+            id : 'content'
         })
-        $textInput.id = 'content'
         bar.append($textInput)
     }
-
     {
         const $buttonValidate = createElement('button', 'validate', 'ok')
         $buttonValidate.onclick = fse.message('validate')
