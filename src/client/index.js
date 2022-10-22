@@ -87,8 +87,9 @@ import { createElement } from './dom.js'
     const bar = createElement('div')
     document.body.append(bar)
     {
-        const $buttonAdd = createElement('button', 'add', 'add')
-        $buttonAdd.onclick = fse.message('add')
+        const $buttonAdd = createElement('button', 'add', 'add', undefined,{
+            onclick : fse.message('add')
+        })
         bar.append($buttonAdd)
     }
     document.body.onclick = fse.message('there')
@@ -100,13 +101,17 @@ import { createElement } from './dom.js'
         bar.append($textInput)
     }
     {
-        const $buttonValidate = createElement('button', 'validate', 'ok')
-        $buttonValidate.onclick = fse.message('validate')
+        const $buttonValidate = createElement('button', 'validate', 'ok',undefined,{
+            onclick : fse.message('validate')
+        })
+        //$buttonValidate.onclick = fse.message('validate')
         bar.append($buttonValidate)
     }
     {
-        const $buttonValidate = createElement('button', 'cancel', 'cancel')
-        $buttonValidate.onclick = fse.message('cancel')
+        const $buttonValidate = createElement('button', 'cancel', 'cancel',undefined,{
+            onclick : fse.message('cancel')
+        })
+//        $buttonValidate.onclick = fse.message('cancel')
         bar.append($buttonValidate)
     }
     {
