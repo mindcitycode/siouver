@@ -1,0 +1,73 @@
+body {
+    width: 1000000px;
+    height: 1000000px;
+}
+
+div {
+    position: fixed
+}
+
+button.validate {
+    visibility: hidden;
+}
+
+button.cancel {
+    visibility: hidden;
+}
+
+input {
+    visibility: hidden;
+}
+
+body.where {
+    cursor: crosshair;
+}
+
+body.where div button.add {
+    visibility: hidden;
+}
+
+body.what div button.add {
+    visibility: hidden;
+}
+
+body.what div input {
+    visibility: visible;
+    autofocus: true;
+}
+
+body.what div button.validate {
+    visibility: visible
+}
+
+body.what div button.cancel {
+    visibility: visible
+}
+
+span.location {
+    position: fixed;
+    right: 1em;
+}
+
+p.box {
+    position: absolute;
+}
+
+/**/
+body {
+    background-color: #222;
+    color: white;
+    font-family: verdana;
+}
+
+div {
+    position: fixed;
+    border-bottom: 2px solid #888;
+    margin: 0;
+    padding: 0.5em;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    background-color: #555;
+    z-index: 999
+}

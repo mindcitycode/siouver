@@ -18,8 +18,10 @@
   "homepage": "https://github.com/mindcitycode/siouver#readme",
   "dependencies": {
     "@fastify/static": "^6.5.0",
+    "css-loader": "^6.7.1",
     "cyclic-dynamodb": "^0.0.27",
     "fastify": "^4.6.0",
+    "style-loader": "^3.3.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

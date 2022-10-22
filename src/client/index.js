@@ -1,47 +1,4 @@
-const create = name => document.createElement(name)
-const $style = create('style')
-document.head.append($style)
-$style.textContent = `
-body {
-    width : 1000000px;
-    height : 1000000px;
-}
-div {  position : fixed }
-button.validate { visibility: hidden;}
-button.cancel { visibility: hidden;}
-input { visibility: hidden;}
-
-body.where { cursor: crosshair;}
-body.where div button.add { visibility: hidden; }
-
-body.what div button.add { visibility: hidden; }
-body.what div input {  visibility: visible ; autofocus : true }
-body.what div button.validate {  visibility: visible }
-body.what div button.cancel {  visibility: visible }
-span.location {
-    position : fixed;
-    right : 1em;
-}
-p.box { position:absolute;}
-/**/
-body {
-    background-color : black;
-    color : white;
-    font-family : verdana;
-}
-div { 
-    position : fixed ;
-    border-bottom : 2px solid #888;
-    margin:0;
-    padding:0.5em;
-    top:0;
-    left:0;
-    width:100vw;
-    background-color:#555;
-    z-index:999       
-}
-`
-
+import './style.css'
 let pointerPosition = { x: 0, y: 0 }
 const onPointerMove = (e) => {
     pointerPosition.x = e.layerX
@@ -52,9 +9,7 @@ document.body.addEventListener('pointermove', onPointerMove);
 const update = async () => {
     const data = await fetch('/blocs')
     const blocks = await data.json()
-    blocks.forEach(({ id, x, y, msg }) => {
-        addBox({ id, x, y, msg })
-    })
+    blocks.forEach(addBox)
 }
 const send = async ({ x, y, msg }) => {
     return fetch('/bloc', {
@@ -67,15 +22,12 @@ const send = async ({ x, y, msg }) => {
     }).then(x => x.json())
 }
 const addBox = (box = {}) => {
-    console.log('may i add a box', box)
     const check = (isNaN(parseFloat(box.x)) === false) && (isNaN(parseFloat(box.y)) === false) && (box.msg?.length > 0)
     if (check) {
         const { x, y, msg } = box
-        const $p = create('p')
-        $p.classList.add('box')
-        $p.style.left = `${x}px`
-        $p.style.top = `${y}px`
-        $p.textContent = msg
+        const $p = createElement('p', 'box', msg, {
+            style: `left: ${x}px; top: ${y}px`
+        })
         document.body.append($p)
     }
 }
@@ -129,45 +81,37 @@ const Fse = () => {
 }
 
 const fse = Fse()
-
+import { createElement } from './dom.js'
 {
-    const bar = create('div')
+    const bar = createElement('div')
     document.body.append(bar)
     {
-        const $buttonAdd = create('button')
-        $buttonAdd.textContent = 'add'
+        const $buttonAdd = createElement('button', 'add', 'add')
         $buttonAdd.onclick = fse.message('add')
-        $buttonAdd.classList.add('add')
         bar.append($buttonAdd)
     }
 
     document.body.onclick = fse.message('there')
     {
-        const $textInput = create('input')
-        $textInput.placeholder = 'type your text'
+        const $textInput = createElement('input', undefined, undefined, {
+            placeholder: 'type your text'
+        })
         $textInput.id = 'content'
         bar.append($textInput)
     }
 
     {
-        const $buttonValidate = create('button')
-        $buttonValidate.textContent = 'ok'
+        const $buttonValidate = createElement('button', 'validate', 'ok')
         $buttonValidate.onclick = fse.message('validate')
-        $buttonValidate.classList.add('validate')
         bar.append($buttonValidate)
     }
     {
-        const $buttonValidate = create('button')
-        $buttonValidate.textContent = 'cancel'
+        const $buttonValidate = createElement('button', 'cancel', 'cancel')
         $buttonValidate.onclick = fse.message('cancel')
-        $buttonValidate.classList.add('cancel')
         bar.append($buttonValidate)
     }
     {
-        const $location = create('span')
-        $location.classList = 'location'
-        //$location.onclick = fse.message('validate')
-        $location.textContent = '22'
+        const $location = createElement('span', 'location', '22')
         bar.append($location)
     }
 }
