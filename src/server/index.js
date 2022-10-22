@@ -49,11 +49,10 @@ fastify.get('/blocs', async (request, reply) => {
 })
 fastify.post('/bloc', async (request, reply) => {
 
-    const body = request.body || ['', '', '']
-
-    const x = parseFloat(body[0])
-    const y = parseFloat(body[1])
-    const msg = `${body[2]}`.substring(0, 42)
+    const body = request.body || {}
+    const x = parseFloat(body.x)
+    const y = parseFloat(body.y)
+    const msg = `${body.msg}`.substring(0, 42)
 
     const check = (isNaN(x) === false) && (isNaN(y) === false) && (msg.length > 0)
     if (check) {
@@ -62,15 +61,16 @@ fastify.post('/bloc', async (request, reply) => {
     } 
 })
 
-const defaultBlocs = [
-    [40, 40, 'place your'],
-    [60, 60, 'own'],
-    [80, 80, 'message'],
-    [100, 100, 'click "add" !']
-].map(([x, y, msg]) => ({ x, y, msg }))
+const defaultBlocs = `
+   place your
+   own
+   message
+   click "add" !
+   click somewhere !
+   write your message !
+   click ok !
+`.trim().split("\n").map( (msg,i) => ([40+i*20,40+i*20,msg.trim()]) ).map(([x, y, msg]) => ({ x, y, msg }))
 
-
-// Run the server!
 const DRY_RUN = false
 const start = async () => {
     if (DRY_RUN) {

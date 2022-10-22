@@ -55,24 +55,21 @@ const update = async () => {
     const blocks = await data.json()
     console.log(blocks)
     blocks.forEach(({ id, x, y, msg }) => {
-        console.log('a bloc', id, x, y, msg)
         addBox({ id, x, y, msg })
     })
 }
-const send = async (x, y, content) => {
-    const rawResponse = await fetch('/bloc', {
+const send = async ({ x, y, msg }) => {
+    return fetch('/bloc', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify([x, y, content])
-    });
-    const box = await rawResponse.json()
-    return box
+        body: JSON.stringify({ x, y, msg })
+    }).then(x => x.json())
 }
 const addBox = (box = {}) => {
-    console.log('may i add a box',box)
+    console.log('may i add a box', box)
     const check = (isNaN(parseFloat(box.x)) === false) && (isNaN(parseFloat(box.y)) === false) && (box.msg?.length > 0)
     if (check) {
         const { x, y, msg } = box
@@ -118,9 +115,9 @@ const Fse = () => {
             } else if (msg === 'validate') {
                 state = undefined
                 document.body.classList.remove('what')
-                const content = $input.value
+                const msg = $input.value
                 $input.value = ''
-                send(x, y, content).then(addBox)
+                send({ x, y, msg }).then(addBox)
                 $addButton.focus()
             }
         }
