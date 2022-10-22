@@ -1,4 +1,7 @@
 import './style.css'
+import { createElement } from './dom.js'
+
+// pointer position
 let pointerPosition = { x: 0, y: 0 }
 const onPointerMove = (e) => {
     pointerPosition.x = e.layerX
@@ -6,6 +9,7 @@ const onPointerMove = (e) => {
 }
 document.body.addEventListener('pointermove', onPointerMove);
 
+// api
 const update = async () => {
     const data = await fetch('/blocs')
     const blocks = await data.json()
@@ -21,17 +25,8 @@ const send = async ({ x, y, msg }) => {
         body: JSON.stringify({ x, y, msg })
     }).then(x => x.json())
 }
-const addBox = (box = {}) => {
-    const check = (isNaN(parseFloat(box.x)) === false) && (isNaN(parseFloat(box.y)) === false) && (box.msg?.length > 0)
-    if (check) {
-        const { x, y, msg } = box
-        document.body.append(
-            createElement('p', 'box', msg, {
-                style: `left: ${x}px; top: ${y}px`
-            })
-        )
-    }
-}
+
+// automata
 const Fse = () => {
     let state = undefined
     let x = undefined
@@ -80,44 +75,46 @@ const Fse = () => {
         }
     }
 }
-
 const fse = Fse()
-import { createElement } from './dom.js'
+
+// dom
+const addBox = (box = {}) => {
+    const check = (isNaN(parseFloat(box.x)) === false) && (isNaN(parseFloat(box.y)) === false) && (box.msg?.length > 0)
+    if (check) {
+        const { x, y, msg } = box
+        document.body.append(
+            createElement('p', 'box', msg, {
+                style: `left: ${x}px; top: ${y}px`
+            })
+        )
+    }
+}
+
 {
     const bar = createElement('div')
     document.body.append(bar)
-    {
-        const $buttonAdd = createElement('button', 'add', 'add', undefined,{
-            onclick : fse.message('add')
-        })
-        bar.append($buttonAdd)
-    }
+    
+    bar.append(createElement('button', 'add', 'add', undefined, {
+        onclick: fse.message('add')
+    }))
+    
     document.body.onclick = fse.message('there')
-    {
-        const $textInput = createElement('input', undefined, undefined, {
-            placeholder: 'type your text',
-            id : 'content'
-        })
-        bar.append($textInput)
-    }
-    {
-        const $buttonValidate = createElement('button', 'validate', 'ok',undefined,{
-            onclick : fse.message('validate')
-        })
-        //$buttonValidate.onclick = fse.message('validate')
-        bar.append($buttonValidate)
-    }
-    {
-        const $buttonValidate = createElement('button', 'cancel', 'cancel',undefined,{
-            onclick : fse.message('cancel')
-        })
-//        $buttonValidate.onclick = fse.message('cancel')
-        bar.append($buttonValidate)
-    }
-    {
-        const $location = createElement('span', 'location', '22')
-        bar.append($location)
-    }
+    
+    bar.append(createElement('input', undefined, undefined, {
+        placeholder: 'type your text',
+        id: 'content'
+    }))
+    
+    bar.append(createElement('button', 'validate', 'ok', undefined, {
+        onclick: fse.message('validate')
+    }))
+    
+    bar.append(createElement('button', 'cancel', 'cancel', undefined, {
+        onclick: fse.message('cancel')
+    }))
+    
+    bar.append(createElement('span', 'location', '22'))
+
 }
 
 var cumulativeOffset = function (element) {
