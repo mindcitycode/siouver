@@ -31,11 +31,19 @@ const Fse = () => {
     let state = undefined
     let x = undefined
     let y = undefined
-    const tell = msg => {
+    const tell = (msg, data) => {
         if (state === undefined) {
             if (msg === 'add') {
                 state = 'where'
                 document.body.classList.add('where')
+            } else if (msg === 'mousedown') {
+                state = 'moving'
+            }
+        } else if (state === 'moving') {
+            if ((msg === 'pointerleave') || (msg === 'mouseup')) {
+                state = undefined
+            } else if (msg = 'pointermove') {
+                window.scrollBy(-data.movementX, -data.movementY)
             }
         } else if (state === 'where') {
             const $input = document.getElementById("content")
@@ -70,7 +78,7 @@ const Fse = () => {
     }
     return {
         message: name => (e) => {
-            tell(name)
+            tell(name, e)
             e?.stopPropagation()
         }
     }
@@ -93,26 +101,26 @@ const addBox = (box = {}) => {
 {
     const bar = createElement('div')
     document.body.append(bar)
-    
+
     bar.append(createElement('button', 'add', 'add', undefined, {
         onclick: fse.message('add')
     }))
-    
+
     document.body.onclick = fse.message('there')
-    
+
     bar.append(createElement('input', undefined, undefined, {
         placeholder: 'type your text',
         id: 'content'
     }))
-    
+
     bar.append(createElement('button', 'validate', 'ok', undefined, {
         onclick: fse.message('validate')
     }))
-    
+
     bar.append(createElement('button', 'cancel', 'cancel', undefined, {
         onclick: fse.message('cancel')
     }))
-    
+
     bar.append(createElement('span', 'location', '22'))
 
 }
@@ -131,12 +139,30 @@ var cumulativeOffset = function (element) {
     };
 };
 
+const setScrollFromURLParams = () => {
+    const url = new URL(document.location)
+    const params = new URLSearchParams(url.search);
+    const sx = params.get('x') || 0
+    const sy = params.get('y') || 0
+    const x = parseInt(sx)
+    const y = parseInt(sy)
+    window.scrollTo(x, y)
+}
+setScrollFromURLParams()
+
 setInterval(() => {
     let url = new URL(document.location)
     let params = new URLSearchParams()//url.search);
 
-    params.set('x', pointerPosition.x);
-    params.set('y', pointerPosition.y);
+    /*
+    const x = pointerPosition.x
+    const y = pointerPosition.y
+    */
+    const x = parseInt(window.pageXOffset)
+    const y = parseInt(window.pageYOffset)
+
+    params.set('x', x);
+    params.set('y', y);
     history.replaceState("no", "no", "?" + params.toString())
 
     const $location = document.getElementsByClassName('location')[0]
@@ -145,3 +171,10 @@ setInterval(() => {
 }, 100)
 
 update()
+
+
+document.documentElement.addEventListener('pointerleave', fse.message('pointerleave'))
+//document.documentElement.addEventListener('pointerenter', () => console.log('in'))
+document.documentElement.addEventListener('mousedown', fse.message('mousedown'))
+document.documentElement.addEventListener('mouseup', fse.message('mouseup'))
+document.documentElement.addEventListener('pointermove', fse.message('pointermove'))
