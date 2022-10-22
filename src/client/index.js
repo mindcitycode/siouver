@@ -50,9 +50,13 @@ const onPointerMove = (e) => {
 document.body.addEventListener('pointermove', onPointerMove);
 
 const update = async () => {
-    const blocks = await fetch('/blocs').then(x => x.json())
-    blocks.forEach(([id, x, y, content]) => {
-        addBox(id, x, y, content)
+    const data = await fetch('/blocs')
+    console.log(data)
+    const blocks = await data.json()
+    console.log(blocks)
+    blocks.forEach(({ id, x, y, msg }) => {
+        console.log('a bloc', id, x, y, msg)
+        addBox({ id, x, y, msg })
     })
 }
 const send = async (x, y, content) => {
@@ -67,13 +71,18 @@ const send = async (x, y, content) => {
     const box = await rawResponse.json()
     return box
 }
-const addBox = (id, x, y, content) => {
-    const $p = create('p')
-    $p.classList.add('box')
-    $p.style.left = `${x}px`
-    $p.style.top = `${y}px`
-    $p.textContent = content
-    document.body.append($p)
+const addBox = (box = {}) => {
+    console.log('may i add a box',box)
+    const check = (isNaN(parseFloat(box.x)) === false) && (isNaN(parseFloat(box.y)) === false) && (box.msg?.length > 0)
+    if (check) {
+        const { x, y, msg } = box
+        const $p = create('p')
+        $p.classList.add('box')
+        $p.style.left = `${x}px`
+        $p.style.top = `${y}px`
+        $p.textContent = msg
+        document.body.append($p)
+    }
 }
 const Fse = () => {
     let state = undefined
@@ -111,9 +120,7 @@ const Fse = () => {
                 document.body.classList.remove('what')
                 const content = $input.value
                 $input.value = ''
-                send(x, y, content).then(([id, x, y, z]) => {
-                    addBox(id, x, y, z)
-                })
+                send(x, y, content).then(addBox)
                 $addButton.focus()
             }
         }
@@ -190,7 +197,7 @@ setInterval(() => {
 
     params.set('x', pointerPosition.x);
     params.set('y', pointerPosition.y);
-    history.replaceState("no","no","?"+params.toString())
+    history.replaceState("no", "no", "?" + params.toString())
 
     const $location = document.getElementsByClassName('location')[0]
     $location.textContent = `${pointerPosition.x} ${pointerPosition.y}`

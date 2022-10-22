@@ -2,42 +2,84 @@
 const fastify = require('fastify')({ logger: true })
 const path = require('path')
 const appDir = path.resolve(path.join(__dirname, '../../'))
+const { v4: uuidv4 } = require('uuid');
 
-console.log(appDir)
+const CyclicDb = require("cyclic-dynamodb")
+const db = CyclicDb("elegant-fish-attireCyclicDB")
+
+const messagesCollection = db.collection("messages")
+const sectorSide = 1024
+const getSector = (_x, _y) => {
+    const coords = [_x, _y].map(f => parseFloat(f))
+    const sector = coords.map(f => Math.floor(f / sectorSide).toString()).join('_')
+    return sector
+}
+
+const writeMessage = async (message) => {
+    const id = uuidv4()
+    const { x, y, msg } = message
+    return messagesCollection.set(id, {
+        x: x.toString(),
+        y: y.toString(),
+        msg: msg,
+        sector: getSector(x, y)
+    }, {
+        $index: ['sector']
+    })
+}
+const findMessageBySector = async sector => {
+    return await messagesCollection.index('sector').find(sector)
+}
+const deleteSector = async sector => {
+    const result = await findMessageBySector(sector)
+    return Promise.all(result.results.map(item => item.delete()))
+}
+const wrapItemForClient = dbItem => {
+    return { id: dbItem.key, ...dbItem.props }
+}
+
+
 fastify.register(require('@fastify/static'), {
     root: path.join(appDir, "dist/"),
     cacheControl: false
-    //prefix: '/public', 
 })
-
-// Declare a route
-fastify.get('/api', async (request, reply) => {
-    return { hello: 'world', and: 'all' }
-})
-const blocs = [
-    [0,40,40,'place your'],
-    [0,60,60,'own'],
-    [0,80,80,'message'],
-    [0,100,100,'click "add" !']
-]
-console.log(blocs)
 fastify.get('/blocs', async (request, reply) => {
-    return blocs
+    const r = await findMessageBySector(getSector(0, 0))
+    return r.results.map(wrapItemForClient)
 })
 fastify.post('/bloc', async (request, reply) => {
-    const body = request.body
+
+    const body = request.body || ['', '', '']
+
     const x = parseFloat(body[0])
     const y = parseFloat(body[1])
-    const msg = `${body[2]}`.substring(0,42)
-    const id = blocs.length
-    const bloc = [id, x, y, msg]
-    console.log(bloc)
-    blocs.push(bloc)
-    return bloc
+    const msg = `${body[2]}`.substring(0, 42)
+
+    const check = (isNaN(x) === false) && (isNaN(y) === false) && (msg.length > 0)
+    if (check) {
+        const dbItem = await writeMessage({ x, y, msg })
+        return wrapItemForClient(dbItem)
+    } 
 })
 
+const defaultBlocs = [
+    [40, 40, 'place your'],
+    [60, 60, 'own'],
+    [80, 80, 'message'],
+    [100, 100, 'click "add" !']
+].map(([x, y, msg]) => ({ x, y, msg }))
+
+
 // Run the server!
+const DRY_RUN = false
 const start = async () => {
+    if (DRY_RUN) {
+        await deleteSector(getSector(0, 0))
+    }
+    const result = await findMessageBySector(getSector(0, 0))
+    if (result.results.length === 0) {
+        await Promise.all(defaultBlocs.map(writeMessage))
+    }
     try {
         await fastify.listen({ port: 3000 })
     } catch (err) {
