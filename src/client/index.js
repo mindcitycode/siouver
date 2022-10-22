@@ -9,13 +9,67 @@ const onPointerMove = (e) => {
 }
 document.body.addEventListener('pointermove', onPointerMove);
 
+import { sectorSide, getSector } from '../common/sector.js'
+
+// cache
+const blocCacher = async () => {
+
+    const maxAge = 20 * 1000
+    const cache = {
+
+    }
+    const getVisibleSectors = () => {
+        const x = parseInt(window.pageXOffset)
+        const y = parseInt(window.pageYOffset)
+        const w = parseInt(window.innerWidth)
+        const h = parseInt(window.innerHeight)
+        const [x0, x1, y0, y1] = [x, x + w, y, y + h].map(v => Math.floor(v / sectorSide))
+        const sectors = []
+        for (let i = Math.max(0, (x0 - 1)); i <= x1; i++) {
+            for (let j = Math.max(0, (y0 - 1)); j <= y1; j++) {
+                const sx = i * sectorSide
+                const sy = j * sectorSide
+                sectors.push(getSector(sx, sy))
+            }
+        }
+        //console.log("visible sectors", sectors)
+        return sectors
+    }
+    const cachedSectorIsOld = sector => {
+        const cachedSector = cache[sector]
+        if (cachedSector === undefined) return true
+        const sectorAge = Date.now() - cachedSector.lastUpdated
+        return sectorAge > maxAge
+    }
+    const sectorJustUpdated = sector => {
+        if (cache[sector] === undefined) {
+            cache[sector] = {}
+        }
+        cache[sector].lastUpdated = Date.now()
+    }
+    const update = async () => {
+       // console.log('cache', cache)
+        const visibleSectors = getVisibleSectors()
+        const updatableSectors = visibleSectors.filter(cachedSectorIsOld)
+        //console.log("updatable sectors", updatableSectors)
+        for (let i = 0; i < updatableSectors.length; i++) {
+            const sector = updatableSectors[i]
+            await fetchSector(sector)
+            sectorJustUpdated(sector)
+        }
+    }
+    setInterval(update, 200)
+
+}
+blocCacher()
+
 // api
-const update = async () => {
-    const data = await fetch('/blocs')
+const fetchSector = async (sector) => {
+    const data = await fetch(`/sector/${sector}`)
     const blocks = await data.json()
     blocks.forEach(addBox)
 }
-const send = async ({ x, y, msg }) => {
+const sendBLoc = async ({ x, y, msg }) => {
     return fetch('/bloc', {
         method: 'POST',
         headers: {
@@ -71,7 +125,7 @@ const Fse = () => {
                 document.body.classList.remove('what')
                 const msg = $input.value
                 $input.value = ''
-                send({ x, y, msg }).then(addBox)
+                sendBLoc({ x, y, msg }).then(addBox)
                 $addButton.focus()
             }
         }
@@ -87,13 +141,17 @@ const fse = Fse()
 
 // dom
 const addBox = (box = {}) => {
+    const exists = document.getElementById(box.id)
+    if (exists) {
+        return
+    }
     const check = (isNaN(parseFloat(box.x)) === false) && (isNaN(parseFloat(box.y)) === false) && (box.msg?.length > 0)
     if (check) {
-        const { x, y, msg } = box
+        const { x, y, msg, id } = box
         document.body.append(
             createElement('p', 'box', msg, {
                 style: `left: ${x}px; top: ${y}px`
-            })
+            }, { id })
         )
     }
 }
@@ -124,7 +182,7 @@ const addBox = (box = {}) => {
     bar.append(createElement('span', 'location', '22'))
 
 }
-
+/*
 var cumulativeOffset = function (element) {
     var top = 0, left = 0;
     do {
@@ -138,7 +196,7 @@ var cumulativeOffset = function (element) {
         left: left
     };
 };
-
+*/
 const setScrollFromURLParams = () => {
     const url = new URL(document.location)
     const params = new URLSearchParams(url.search);
@@ -170,7 +228,9 @@ setInterval(() => {
 
 }, 100)
 
-update()
+
+
+
 
 
 document.documentElement.addEventListener('pointerleave', fse.message('pointerleave'))

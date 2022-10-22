@@ -8,12 +8,7 @@ const CyclicDb = require("cyclic-dynamodb")
 const db = CyclicDb("elegant-fish-attireCyclicDB")
 
 const messagesCollection = db.collection("messages")
-const sectorSide = 1024
-const getSector = (_x, _y) => {
-    const coords = [_x, _y].map(f => parseFloat(f))
-    const sector = coords.map(f => Math.floor(f / sectorSide).toString()).join('_')
-    return sector
-}
+const { getSector } = require('../common/sector.js')
 
 const writeMessage = async (message) => {
     const id = uuidv4()
@@ -38,14 +33,17 @@ const wrapItemForClient = dbItem => {
     return { id: dbItem.key, ...dbItem.props }
 }
 
-
 fastify.register(require('@fastify/static'), {
     root: path.join(appDir, "dist/"),
     cacheControl: false
 })
-fastify.get('/blocs', async (request, reply) => {
-    const r = await findMessageBySector(getSector(0, 0))
-    return r.results.map(wrapItemForClient)
+
+fastify.get('/sector/:sector', async (request, reply) => {
+    const sector = request?.params?.sector
+    if (sector) {
+        const r = await findMessageBySector(sector)
+        return r.results.map(wrapItemForClient)
+    }
 })
 fastify.post('/bloc', async (request, reply) => {
 
@@ -58,18 +56,18 @@ fastify.post('/bloc', async (request, reply) => {
     if (check) {
         const dbItem = await writeMessage({ x, y, msg })
         return wrapItemForClient(dbItem)
-    } 
+    }
 })
 
 const defaultBlocs = `
    place your
    own
-   message
+   message bloc
    click "add" !
    click somewhere !
    write your message !
    click ok !
-`.trim().split("\n").map( (msg,i) => ([40+i*20,40+i*20,msg.trim()]) ).map(([x, y, msg]) => ({ x, y, msg }))
+`.trim().split("\n").map((msg, i) => ([40 + i * 20, 40 + i * 20, msg.trim()])).map(([x, y, msg]) => ({ x, y, msg }))
 
 const DRY_RUN = false
 const start = async () => {
