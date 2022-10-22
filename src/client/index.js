@@ -51,9 +51,7 @@ document.body.addEventListener('pointermove', onPointerMove);
 
 const update = async () => {
     const data = await fetch('/blocs')
-    console.log(data)
     const blocks = await data.json()
-    console.log(blocks)
     blocks.forEach(({ id, x, y, msg }) => {
         addBox({ id, x, y, msg })
     })
