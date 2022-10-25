@@ -10,8 +10,8 @@
     "type": "git",
     "url": "git+https://github.com/mindcitycode/siouver.git"
   },
-  "author": "",
-  "license": "GPL-3.0-or-later",
+  "author": "mindcitycode <mindcity@proton.me>",
+  "license": "AGPL-3.0-only",
   "bugs": {
     "url": "https://github.com/mindcitycode/siouver/issues"
   },

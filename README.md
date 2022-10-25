@@ -17,4 +17,4 @@ build
 
 ## license
 
-siouver is licensed under the GPL-3.0-or-later license
+siouver is licensed under the AGPL-3.0-only license
