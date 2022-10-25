@@ -1,7 +1,7 @@
 {
   "name": "siouver",
   "version": "1.0.0",
-  "description": "",
+  "description": "a tiled collaborative blackboard",
   "main": "src/server/index.js",
   "scripts": {
     "build": "npx webpack --mode=production"
